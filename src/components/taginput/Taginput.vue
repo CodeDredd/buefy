@@ -8,7 +8,7 @@
             <b-tag
                 v-for="(tag, index) in tags"
                 :key="index"
-                :type="type"
+                :type="tag.type ? tag.type : type"
                 :size="size"
                 :rounded="rounded"
                 :attached="attached"
@@ -17,7 +17,12 @@
                 :ellipsis="ellipsis"
                 :closable="closable"
                 @close="removeTag(index)">
-                {{ getNormalizedTagText(tag) }}
+                <b-tooltip
+                    :active="tag.tooltip"
+                    :multilined="true"
+                    :label="tag.tooltip">
+                    {{ getNormalizedTagText(tag) }}
+                </b-tooltip>
             </b-tag>
 
             <b-autocomplete
@@ -73,10 +78,12 @@
     import Tag from '../tag/Tag'
     import Autocomplete from '../autocomplete/Autocomplete'
     import FormElementMixin from '../../utils/FormElementMixin'
+    import BTooltip from '../tooltip/Tooltip'
 
     export default {
         name: 'BTaginput',
         components: {
+            [BTooltip.name]: BTooltip,
             [Autocomplete.name]: Autocomplete,
             [Tag.name]: Tag
         },
