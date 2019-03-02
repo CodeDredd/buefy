@@ -11322,7 +11322,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     }, [_c('b-tooltip', {
       attrs: {
-        "active": tag.tooltip,
+        "active": !!tag.tooltip,
         "multilined": true,
         "label": tag.tooltip
       }

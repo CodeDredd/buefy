@@ -18,7 +18,7 @@
                 :closable="closable"
                 @close="removeTag(index)">
                 <b-tooltip
-                    :active="tag.tooltip"
+                    :active="!!tag.tooltip"
                     :multilined="true"
                     :label="tag.tooltip">
                     {{ getNormalizedTagText(tag) }}
