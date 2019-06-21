@@ -3,6 +3,7 @@
         <b-input
             v-model="newValue"
             ref="input"
+            type="text"
             :size="size"
             :loading="loading"
             :rounded="rounded"
@@ -10,6 +11,7 @@
             :icon-pack="iconPack"
             :maxlength="maxlength"
             :autocomplete="newAutocomplete"
+            :use-html5-validation="useHtml5Validation"
             v-bind="$attrs"
             @input="onInput"
             @focus="focused"
@@ -54,6 +56,11 @@
                         class="dropdown-item is-disabled">
                         <slot name="empty"/>
                     </div>
+                    <div
+                        v-if="hasFooterSlot"
+                        class="dropdown-item">
+                        <slot name="footer"/>
+                    </div>
                 </div>
             </div>
         </transition>
@@ -84,7 +91,8 @@
             },
             keepFirst: Boolean,
             clearOnSelect: Boolean,
-            openOnFocus: Boolean
+            openOnFocus: Boolean,
+            customFormatter: Function
         },
         data() {
             return {
@@ -138,6 +146,13 @@
              */
             hasHeaderSlot() {
                 return !!this.$slots.header
+            },
+
+            /**
+             * Check if exists "footer" slot
+             */
+            hasFooterSlot() {
+                return !!this.$slots.footer
             }
         },
         watch: {
@@ -273,6 +288,9 @@
             getValue(option) {
                 if (!option) return
 
+                if (typeof this.customFormatter !== 'undefined') {
+                    return this.customFormatter(option)
+                }
                 return typeof option === 'object'
                     ? getValueByPath(option, this.field)
                     : option

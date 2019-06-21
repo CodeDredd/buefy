@@ -8,6 +8,8 @@ let config = {
     defaultSnackbarPosition: null,
     defaultToastDuration: 2000,
     defaultToastPosition: null,
+    defaultNotificationDuration: 2000,
+    defaultNotificationPosition: null,
     defaultTooltipType: 'is-primary',
     defaultTooltipAnimated: false,
     defaultInputAutocomplete: 'on',
@@ -26,7 +28,10 @@ let config = {
     defaultTimepickerMobileNative: true,
     defaultNoticeQueue: true,
     defaultInputHasCounter: true,
-    defaultUseHtml5Validation: true
+    defaultUseHtml5Validation: true,
+    defaultDropdownMobileModal: true,
+    defaultFielLabelPosition: null,
+    defaultDatepickerYearsRange: [-100, 3]
 }
 
 export default config

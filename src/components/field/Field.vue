@@ -5,20 +5,22 @@
             class="field-label"
             :class="[customClass, fieldLabelSize]">
             <label
-                v-if="label"
+                v-if="hasLabel"
                 :for="labelFor"
                 :class="customClass"
                 class="label" >
-                {{ label }}
+                <slot v-if="$slots.label" name="label"/>
+                <template v-else>{{ label }}</template>
             </label>
         </div>
         <template v-else>
             <label
-                v-if="label"
+                v-if="hasLabel"
                 :for="labelFor"
                 :class="customClass"
                 class="label">
-                {{ label }}
+                <slot v-if="$slots.label" name="label"/>
+                <template v-else>{{ label }}</template>
             </label>
         </template>
         <b-field-body
@@ -40,6 +42,7 @@
 </template>
 
 <script>
+    import config from '../../utils/config'
     import FieldBody from './FieldBody'
 
     export default {
@@ -61,7 +64,11 @@
                 type: Boolean,
                 default: true
             },
-            customClass: String
+            customClass: String,
+            labelPosition: {
+                type: String,
+                default: () => { return config.defaultFieldLabelPosition }
+            }
         },
         data() {
             return {
@@ -76,7 +83,11 @@
                 return [this.newPosition, {
                     'is-expanded': this.expanded,
                     'is-grouped-multiline': this.groupMultiline,
-                    'is-horizontal': this.horizontal
+                    'is-horizontal': this.horizontal,
+                    'is-floating-in-label': this.hasLabel && !this.horizontal &&
+                        this.labelPosition === 'inside',
+                    'is-floating-label': this.hasLabel && !this.horizontal &&
+                        this.labelPosition === 'on-border'
                 }]
             },
             /**
@@ -128,6 +139,9 @@
                     }
                     return messages.filter((m) => { if (m) return m }).join(' <br> ')
                 }
+            },
+            hasLabel() {
+                return this.label || this.$slots.label
             }
         },
         watch: {
@@ -157,8 +171,7 @@
 
                 let renderedNode = 0
                 if (this.$slots.default) {
-                    renderedNode = this.$slots.default
-                                        .reduce((i, node) => node.tag ? i + 1 : i, 0)
+                    renderedNode = this.$slots.default.reduce((i, node) => node.tag ? i + 1 : i, 0)
                 }
                 if (
                     renderedNode > 1 &&

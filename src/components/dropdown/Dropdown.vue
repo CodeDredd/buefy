@@ -10,7 +10,7 @@
             <slot name="trigger"/>
         </div>
 
-        <transition name="fade">
+        <transition :name="animation">
             <div
                 v-if="isMobileModal"
                 v-show="isActive"
@@ -18,9 +18,9 @@
                 :aria-hidden="!isActive"
             />
         </transition>
-        <transition name="fade">
+        <transition :name="animation">
             <div
-                v-show="(!disabled && (isActive || hoverable)) || inline"
+                v-show="(!disabled && (isActive || isHoverable)) || inline"
                 ref="dropdownMenu"
                 class="dropdown-menu"
                 :aria-hidden="!isActive">
@@ -35,6 +35,8 @@
 </template>
 
 <script>
+    import config from '../../utils/config'
+
     export default {
         name: 'BDropdown',
         props: {
@@ -57,17 +59,29 @@
             },
             mobileModal: {
                 type: Boolean,
-                default: true
+                default: () => {
+                    return config.defaultDropdownMobileModal
+                }
             },
             ariaRole: {
                 type: String,
                 default: ''
+            },
+            animation: {
+                type: String,
+                default: 'fade'
+            },
+            multiple: Boolean,
+            closeOnClick: {
+                type: Boolean,
+                default: true
             }
         },
         data() {
             return {
                 selected: this.value,
                 isActive: false,
+                isHoverable: this.hoverable,
                 _isDropdown: true // Used internally by DropdownItem
             }
         },
@@ -111,12 +125,38 @@
              *   3. Close the dropdown.
              */
             selectItem(value) {
-                if (this.selected !== value) {
-                    this.$emit('change', value)
-                    this.selected = value
+                if (this.multiple) {
+                    if (this.selected) {
+                        const index = this.selected.indexOf(value)
+                        if (index === -1) {
+                            this.selected.push(value)
+                        } else {
+                            this.selected.splice(index, 1)
+                        }
+                    } else {
+                        this.selected = [value]
+                    }
+                    this.$emit('change', this.selected)
+                } else {
+                    if (this.selected !== value) {
+                        this.selected = value
+                        this.$emit('change', this.selected)
+                    }
                 }
-                this.$emit('input', value)
-                this.isActive = false
+                this.$emit('input', this.selected)
+                if (!this.multiple) {
+                    this.isActive = !this.closeOnClick
+                    /*
+                     * breaking change
+                    if (this.hoverable && this.closeOnClick) {
+                        this.isHoverable = false
+                        // Timeout for the animation complete before destroying
+                        setTimeout(() => {
+                            this.isHoverable = true
+                        }, 250)
+                    }
+                    */
+                }
             },
 
             /**
@@ -160,7 +200,7 @@
              * Toggle dropdown if it's not disabled.
              */
             toggle() {
-                if (this.disabled || this.hoverable) return
+                if (this.disabled) return
 
                 if (!this.isActive) {
                     // if not active, toggle after clickOutside event
